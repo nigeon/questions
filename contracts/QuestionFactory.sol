@@ -45,6 +45,9 @@ contract QuestionFactory{
     return _indexes;
   }
   
+  /**
+   * Provide an ansert to an specific question
+   */
   function giveAnswer(uint _questionId, string _text) external returns(bool) {
       uint id = answers.push(Answer(_text)) -1;
       answerToOwner[id] = msg.sender;
@@ -53,6 +56,9 @@ contract QuestionFactory{
       answerQuestionCount[_questionId]++;
   }
   
+  /**
+   * Get an answers id array for a provided question
+   */
   function getAnswersByQuestion(uint _questionId) external view returns(uint[]) {
     return questionToAnswers[_questionId];
   }

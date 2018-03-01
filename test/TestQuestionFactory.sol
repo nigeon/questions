@@ -37,17 +37,18 @@ contract TestQuestionFactory {
     Assert.equal(returnedId, expected, "Second answer ID 1 should be recorded.");
   }
 
-  function testAnswerOwner() public {
+  function testAnswerProperties() public {
     var (qId, text, returnedOwner) = questionfactory.getAnswer(0);
     Assert.equal(returnedOwner, this, "Question owners are the same.");
     Assert.equal(qId, 1, "Question id in Answer is correct.");
     //Assert.equal(bytes(text), bytes("This is the second question"), "Answer text is correct.");
   }
 
+  //Following TESTS are NOT possible YET. Becasue of dynamic array returning and stuff.
   /*
   function testGetQuestionsByOwner() public {   
-    uint[] memory questions = questionfactory.getQuestionsByOwner(this);
-    uint8[] memory expected = [0,1];
+    uint8[] memory questions = questionfactory.getQuestionsByOwner(this);
+    uint8[2] memory expected = [0,1];
     Assert.equal(questions, expected, "Test questions returned.");
   }
 

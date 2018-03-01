@@ -1,32 +1,32 @@
-pragma solidity ^0.4.20;
+pragma solidity ^0.4.18;
 
 contract QuestionFactory{
   struct Question {
     string text;
+    address owner;
+    uint[] answers;
   }
 
   struct Answer {
-      string text;
+    uint questionId;
+    string text;
+    address owner;
   }
   
   Question[] public questions;
   Answer[] public answers;
-  mapping (uint => address) public questionToOwner;
+
   mapping (address => uint) public ownerQuestionCount;
-  mapping (uint => address) public answerToOwner;
-  mapping (uint => uint) public answerToQuestion;
-  mapping (uint => uint) public answerQuestionCount;
-  uint[][] public questionToAnswers;
 
   /**
    * Make a question, providing the reward for the correct answer
    */
-  function makeQuestion(string _text) public {
-    uint id = questions.push(Question(_text)) -1;
-    questionToOwner[id] = msg.sender;
+  function makeQuestion(string _text) public returns(uint) {
+    Question memory _q = Question(_text, msg.sender, new uint[](0));
+    uint id = questions.push(_q) - 1;
     ownerQuestionCount[msg.sender]++;
-    uint[] storage _answers;
-    questionToAnswers.push(_answers);
+
+    return id;
   }
 
   /**
@@ -37,7 +37,7 @@ contract QuestionFactory{
     uint counter = 0;
 
     for (uint i = 0; i < questions.length; i++) {
-      if (questionToOwner[i] == _owner) {
+      if (questions[i].owner == _owner) {
         _indexes[counter] = i;
         counter++;
       }
@@ -46,21 +46,36 @@ contract QuestionFactory{
   }
   
   /**
-   * Provide an ansert to an specific question
+   * Provide an answer to an specific question
    */
-  function giveAnswer(uint _questionId, string _text) external returns(bool) {
-      uint id = answers.push(Answer(_text)) -1;
-      answerToOwner[id] = msg.sender;
-      answerToQuestion[id] = _questionId;
-      questionToAnswers[_questionId].push(id);
-      answerQuestionCount[_questionId]++;
+  function giveAnswer(uint _questionId, string _text) external returns(uint) {
+    uint _answerId = answers.push(Answer(_questionId, _text, msg.sender)) - 1;
+    questions[_questionId].answers.push(_answerId);
+
+    return _answerId;
   }
   
   /**
-   * Get an answers id array for a provided question
+   * Returns all answers to a question
    */
   function getAnswersByQuestion(uint _questionId) external view returns(uint[]) {
-    return questionToAnswers[_questionId];
+    return questions[_questionId].answers;
   }
-  
+
+  /**
+   * Struct UnPacker
+   * TODO: IS THIS ONLY NEEDED/USED IN THE SOLIDITY TESTS?
+   */
+  function getQuestion(uint _questionId) external view returns (string, address) {
+    return (questions[_questionId].text, questions[_questionId].owner);
+  }
+
+  /**
+   * Struct UnPacker
+   * TODO: IS THIS ONLY NEEDED/USED IN THE SOLIDITY TESTS?
+   */
+  function getAnswer(uint _answerId) external view returns (uint, string, address) {
+    return (answers[_answerId].questionId, answers[_answerId].text, answers[_answerId].owner);
+  }
+
 }

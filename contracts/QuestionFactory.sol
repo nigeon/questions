@@ -1,6 +1,10 @@
 pragma solidity ^0.4.18;
 
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+
 contract QuestionFactory{
+  using SafeMath for uint256;
+
   struct Question {
     string text;
     address owner;
@@ -23,8 +27,8 @@ contract QuestionFactory{
    */
   function makeQuestion(string _text) public returns(uint) {
     Question memory _q = Question(_text, msg.sender, new uint[](0));
-    uint id = questions.push(_q) - 1;
-    ownerQuestionCount[msg.sender]++;
+    uint id = questions.push(_q).sub(1);
+    ownerQuestionCount[msg.sender] = ownerQuestionCount[msg.sender].add(1);
 
     return id;
   }
@@ -39,7 +43,7 @@ contract QuestionFactory{
     for (uint i = 0; i < questions.length; i++) {
       if (questions[i].owner == _owner) {
         _indexes[counter] = i;
-        counter++;
+        counter = counter.add(1);
       }
     }
     return _indexes;
@@ -49,7 +53,7 @@ contract QuestionFactory{
    * Provide an answer to an specific question
    */
   function giveAnswer(uint _questionId, string _text) external returns(uint) {
-    uint _answerId = answers.push(Answer(_questionId, _text, msg.sender)) - 1;
+    uint _answerId = answers.push(Answer(_questionId, _text, msg.sender)).sub(1);
     questions[_questionId].answers.push(_answerId);
 
     return _answerId;
